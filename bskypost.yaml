@@ -1,0 +1,4 @@
+#deploy_site: socialpraxis.netlify.app
+#repo_name: band/technosocial-praxis
+deploy_site: band.github.io
+repo_name: band/mptest03
