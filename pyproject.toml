@@ -1,0 +1,17 @@
+[project]
+name = "markpub-bskypost"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "William L. Anderson", email = "band@users.noreply.github.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+markpub-bskypost = "markpub_bskypost:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
