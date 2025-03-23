@@ -236,16 +236,20 @@ def update_github_file_api(repo_name, file_path, new_content, commit_message, to
         return False
 
 def main():
+    # read 'bskypost.yaml' config file
+    # 
+    # if site or repo not defined prompt for CLI input
     parser = argparse.ArgumentParser(description="Post MarkPub webpage to Bluesky and update Markdown page with bluesky-post URL")
     # Bluesky post arguments
     parser.add_argument(
-        "--pds-url", default=os.environ.get("ATP_PDS_HOST") or "https://bsky.social"
+        "--pds-url", metavar="BLUESKY_HOST", default=os.environ.get("ATP_PDS_HOST") or "https://bsky.social"
     )
-    parser.add_argument("--handle", default=os.environ.get("ATP_AUTH_HANDLE"))
-    parser.add_argument("--password", default=os.environ.get("ATP_AUTH_PASSWORD"))
+    parser.add_argument("--handle", metavar="BLUESKY_HANDLE", default=os.environ.get("ATP_AUTH_HANDLE"))
+    parser.add_argument("--password", metavar="BLUESKY_PASSWORD", default=os.environ.get("ATP_AUTH_PASSWORD"))
     # GitHub API arguments
-    parser.add_argument("--token", default=os.environ.get("GH_TOKEN"))
-    
+    parser.add_argument("--token", metavar="GITHUB_TOKEN", default=os.environ.get("GH_TOKEN"))
+#    parser.add_argument("--sitehost", default=config.get('deploy_site', ''))
+#    parser.add_argument("--reponame", default=config.get('repo_name', ''))
     args = parser.parse_args()
     logger.debug(f"args: {args}")
 
