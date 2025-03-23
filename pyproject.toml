@@ -3,8 +3,8 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [project]
-name = "markpub-bskypost"
-version = "0.1.0"
+name = "markpub_bskypost"
+version = "0.1.1"
 description = "Bluesky comments support for MarkPub websites"
 authors = [
     {name = "William L. Anderson",email = "band@acm.org"}
@@ -19,5 +19,5 @@ dependencies = [
 ]
 
 [project.scripts]
-markpub-bskypost = "markpub-bskypost.markpub-bskypost:main"
+markpub_bskypost = "markpub_bskypost.markpub_bskypost:main"
 
