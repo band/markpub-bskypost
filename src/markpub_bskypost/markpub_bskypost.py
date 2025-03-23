@@ -8,7 +8,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s: %(filename)s:%(lineno)d - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-logger = logging.getLogger('bluesky_posting')
+logger = logging.getLogger('markpub_bluesky_posting')
 
 import argparse
 import base64
@@ -22,13 +22,11 @@ from typing import Dict, List
 from urllib.parse import unquote
 import yaml
 
-import bluesky_post
+import markpub_bskypost.bluesky_post
 """
-pip install 'requests' and 'bs4' (BeautifulSoup)
-
 only CLI input required is
-Bluesky and GitHub credentials if not defined in the Environment
-
+- Bluesky and GitHub credentials if not defined in the Environment
+- deploy_site and repo_name if no "bskypost.yaml" file found
 """
 # load config file
 def load_config(path):

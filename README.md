@@ -17,14 +17,14 @@ Gratitude to [Emily Liu](https://emilyliu.me/) and [Cory Zue](https://www.coryzu
 To install:
 
 ``` shell
-pip install -r requirements.txt
+pip install --extra-index-url https://test.pypi.org/simple/ markpub_bskypost
 ```  
 
 
 For a list of options and arguments:
 
 ```shell
-markpub-bskypost
+markpub_bskypost
 ```   
 
 
