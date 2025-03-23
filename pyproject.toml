@@ -1,13 +1,21 @@
 [project]
 name = "markpub-bskypost"
 version = "0.1.0"
-description = "Add your description here"
+description = "Bluesky comments support for MarkPub websites"
+license = {text = "MIT"}
 readme = "README.md"
 authors = [
-    { name = "William L. Anderson", email = "band@users.noreply.github.com" }
+    { name = "Bill Anderson", email = "band@acm.org" }
 ]
-requires-python = ">=3.13"
-dependencies = []
+requires-python = ">=3.12"
+dependencies = [
+    "bs4>=0.0.2",
+    "pyyaml>=6.0.2",
+    "requests>=2.32.3",
+]
+
+[project.urls]
+homepage = "https://github.com/band/markpub-bskypost"
 
 [project.scripts]
 markpub-bskypost = "markpub_bskypost:main"
