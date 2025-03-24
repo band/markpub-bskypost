@@ -13,6 +13,7 @@ logger = logging.getLogger('markpub_bluesky_posting')
 import argparse
 import base64
 from datetime import datetime, timezone
+from dotenv import load_dotenv
 import json
 from pathlib import Path
 import re
@@ -241,15 +242,17 @@ def update_github_file_api(repo_name, file_path, new_content, commit_message, to
         return False
 
 def main():
+    # get environment settings
+    load_dotenv()
     parser = argparse.ArgumentParser(description="Post MarkPub webpage to Bluesky and update Markdown page with bluesky-post URL")
     # Bluesky post arguments
     parser.add_argument(
-        "--pds-url", metavar="BLUESKY_HOST", default=os.environ.get("ATP_PDS_HOST") or "https://bsky.social"
+        "--pds-url", metavar="BLUESKY_HOST", default=os.getenv("ATP_PDS_HOST") or "https://bsky.social"
     )
-    parser.add_argument("--handle", metavar="BLUESKY_HANDLE", default=os.environ.get("ATP_AUTH_HANDLE"))
-    parser.add_argument("--password", metavar="BLUESKY_PASSWORD", default=os.environ.get("ATP_AUTH_PASSWORD"))
+    parser.add_argument("--handle", metavar="BLUESKY_HANDLE", default=os.getenv("ATP_AUTH_HANDLE"))
+    parser.add_argument("--password", metavar="BLUESKY_PASSWORD", default=os.getenv("ATP_AUTH_PASSWORD"))
     # GitHub API arguments
-    parser.add_argument("--token", metavar="GITHUB_TOKEN", default=os.environ.get("GH_TOKEN"))
+    parser.add_argument("--token", metavar="GITHUB_TOKEN", default=os.getenv("GH_TOKEN"))
     parser.add_argument("--sitehost", default='')
     parser.add_argument("--reponame", default='')
     args = parser.parse_args()

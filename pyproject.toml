@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "markpub_bskypost"
-version = "0.1.6"
+version = "0.1.7"
 description = "Bluesky comments support for MarkPub websites"
 authors = [
     {name = "William L. Anderson",email = "band@acm.org"}
@@ -17,7 +17,8 @@ requires-python = ">=3.12"
 dependencies = [
     "bs4 (>=0.0.2,<0.0.3)",
     "requests (>=2.32.3,<3.0.0)",
-    "pyyaml (>=6.0.2,<7.0.0)"
+    "pyyaml (>=6.0.2,<7.0.0)",
+    "python-dotenv (>=1.0.1,<2.0.0)"
 ]
 
 [project.scripts]
