@@ -241,9 +241,6 @@ def update_github_file_api(repo_name, file_path, new_content, commit_message, to
         return False
 
 def main():
-    # read 'bskypost.yaml' config file
-    config = load_config(Path('./bskypost.yaml').resolve().as_posix())
-
     parser = argparse.ArgumentParser(description="Post MarkPub webpage to Bluesky and update Markdown page with bluesky-post URL")
     # Bluesky post arguments
     parser.add_argument(
@@ -253,8 +250,8 @@ def main():
     parser.add_argument("--password", metavar="BLUESKY_PASSWORD", default=os.environ.get("ATP_AUTH_PASSWORD"))
     # GitHub API arguments
     parser.add_argument("--token", metavar="GITHUB_TOKEN", default=os.environ.get("GH_TOKEN"))
-    parser.add_argument("--sitehost", default=config.get('deploy_site', ''))
-    parser.add_argument("--reponame", default=config.get('repo_name', ''))
+    parser.add_argument("--sitehost", default='')
+    parser.add_argument("--reponame", default='')
     args = parser.parse_args()
     logger.debug(f"args: {args}")
 
@@ -266,10 +263,15 @@ def main():
         logger.critical("GitHub access token is required")
         return -1
 
-    if not (args.sitehost and args.reponame):
+    # read 'bskypost.yaml' config file
+    if not (config := load_config(Path('./bskypost.yaml').resolve().as_posix())):
+        if not (args.sitehost and args.reponame):
+            logger.critical("both sitehost and reponame are required")
+            return -1
+    if not (config.get('deploy_site') and config.get('repo_name')):
         logger.critical("both sitehost and reponame are required")
         return -1
-
+    
     # get filename and embed_url path
     markdown_filename = get_filename()
     logger.debug(f"markdown_filename: {markdown_filename}")
