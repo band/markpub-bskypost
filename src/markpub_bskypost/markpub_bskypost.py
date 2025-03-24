@@ -30,8 +30,15 @@ only CLI input required is
 """
 # load config file
 def load_config(path):
-    with open(path) as infile:
-        return yaml.safe_load(infile)
+    try:
+        with open(path) as infile:
+            return yaml.safe_load(infile)
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}", file=sys.stderr)
+        return None
 
 # create web-safe filepaths
 def scrub_path(filepath):
@@ -235,8 +242,8 @@ def update_github_file_api(repo_name, file_path, new_content, commit_message, to
 
 def main():
     # read 'bskypost.yaml' config file
-    # 
-    # if site or repo not defined prompt for CLI input
+    config = load_config(Path('./bskypost.yaml').resolve().as_posix())
+
     parser = argparse.ArgumentParser(description="Post MarkPub webpage to Bluesky and update Markdown page with bluesky-post URL")
     # Bluesky post arguments
     parser.add_argument(
@@ -246,8 +253,8 @@ def main():
     parser.add_argument("--password", metavar="BLUESKY_PASSWORD", default=os.environ.get("ATP_AUTH_PASSWORD"))
     # GitHub API arguments
     parser.add_argument("--token", metavar="GITHUB_TOKEN", default=os.environ.get("GH_TOKEN"))
-#    parser.add_argument("--sitehost", default=config.get('deploy_site', ''))
-#    parser.add_argument("--reponame", default=config.get('repo_name', ''))
+    parser.add_argument("--sitehost", default=config.get('deploy_site', ''))
+    parser.add_argument("--reponame", default=config.get('repo_name', ''))
     args = parser.parse_args()
     logger.debug(f"args: {args}")
 
@@ -259,9 +266,9 @@ def main():
         logger.critical("GitHub access token is required")
         return -1
 
-    #get config info: deploy_site, repo_name
-    config = load_config(Path('./bskypost.yaml').resolve().as_posix())
-    logger.debug(f"config info: {config}")
+    if not (args.sitehost and args.reponame):
+        logger.critical("both sitehost and reponame are required")
+        return -1
 
     # get filename and embed_url path
     markdown_filename = get_filename()
