@@ -14,24 +14,25 @@ Gratitude to [Emily Liu](https://emilyliu.me/) and [Cory Zue](https://www.coryzu
 
 -----
 
-To install:
+**To install**:
 
 ``` shell
 pip install --extra-index-url https://test.pypi.org/simple/ markpub_bskypost
 ```  
 
 
-For a list of options and arguments:
+**For a list of options and arguments**:
 
 ```shell
 markpub_bskypost -h
 ```   
 
-Some configuration notes and suggestions  
+**Some configuration notes and suggestions**  
 
 Bluesky and GitHub credentials are needed to post to Bluesky and to update pages in a GitHub repository. These can be provided as arguments on the command line, or as local shell environment variables.  
 
-Environment Variables  
+Environment Variables:  
+
 Create a `.env` file in your project root with the following variables:
 
 ```
@@ -45,7 +46,7 @@ If ATP_PDS_HOST is not specified “https://bsky.social” is the default.
 
 **Note**: Never commit your `.env` file to version control. Add it to your `.gitignore` file.
 
-Website host and Git repository  
+Website host and Git repository:  
 
 The host on which the website is deployed, and the repository holding the Markdown files can be specified on the command line, or in a file in the working directory named `bskypost.yaml` . Here is an example file:  
 
