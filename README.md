@@ -1,8 +1,8 @@
 
-Microblogging support for MarkPub and MassiveWiki websites
+Bluesky Comment support for MarkPub and MassiveWiki websites
 =========================
 
-Script to (1) post a MarkPub or MassiveWiki webpage link to Bluesky,
+Python package to (1) post a MarkPub or MassiveWiki webpage link to Bluesky,
 and (2) display any comments and likes made to that Bluesky post on
 the referenced website page.  
 
