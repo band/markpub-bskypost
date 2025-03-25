@@ -23,7 +23,7 @@ from typing import Dict, List
 from urllib.parse import unquote
 import yaml
 
-import markpub_bskypost.bluesky_post
+import markpub_bskypost.bluesky_post as bluesky_post
 """
 only CLI input required is
 - Bluesky and GitHub credentials if not defined in the Environment
