@@ -4,14 +4,16 @@ build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "markpub_bskypost"
-version = "0.9.1"
+version = "0.9.2"
 description = "Bluesky comments support for MarkPub websites"
 authors = [
     {name = "William L. Anderson",email = "band@acm.org"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
-homepage = "https://github.com/band/markpub-bskypost"
+
+[project.urls]
+repository = "https://github.com/band/markpub-bskypost"
 
 requires-python = ">=3.12"
 dependencies = [
