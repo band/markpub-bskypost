@@ -2,9 +2,9 @@
 Bluesky Comment support for MarkPub and MassiveWiki websites
 =========================
 
-Python package to (1) post a MarkPub or MassiveWiki webpage link to Bluesky,
-and (2) display any comments and likes made to that Bluesky post on
-the referenced website page.  
+Python package to  
+(1) post a MarkPub or MassiveWiki webpage link to Bluesky, and  
+(2) display any comments and likes made to that Bluesky post on the referenced website page.  
 
 Tested with Python 3.12.
 
@@ -20,6 +20,7 @@ Gratitude to [Emily Liu](https://emilyliu.me/) and [Cory Zue](https://www.coryzu
 pip install --extra-index-url https://test.pypi.org/simple/ markpub_bskypost
 ```  
 
+Note: this package will be transferred from this test index to `pypi.org` .  
 
 **For a list of options and arguments**:
 
@@ -44,7 +45,7 @@ GH_TOKEN=your_GitHub_token_here
 
 If ATP_PDS_HOST is not specified “https://bsky.social” is the default.  
 
-**Note**: Never commit your `.env` file to version control. Add it to your `.gitignore` file.
+**N.B.**: Never commit your `.env` file to version control. Add it to your `.gitignore` file.
 
 Website host and Git repository:  
 
@@ -54,3 +55,23 @@ The host on which the website is deployed, and the repository holding the Markdo
 deploy_site: socialpraxis.netlify.app
 repo_name: band/technosocial-praxis
 ```  
+
+**Use example**:  
+
+This program is run in a terminal application and from the `.markpub` directory of your repository.  
+
+Running `markpub_bskypost` yields  
+
+``` shell
+Enter the Markdown file name: 
+```   
+One can enter a full-path, or a relative path, to a Markdown file in the repository, or an Obsidian URL (copied from the Obsidian file browser;  
+for example: `obsidian://open?vault=technosocial-praxis&file=notas%2F20250325-testnote)  
+
+`markpub_bksypost` generates the webpage URL to embed in the post
+and then prompts for the content of the Bluesky post (showing how many
+characters are available for the post text).  
+```shell
+Enter bluesky post text (238 characters available): 
+```  
+
