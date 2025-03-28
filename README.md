@@ -17,7 +17,7 @@ Gratitude to [Emily Liu](https://emilyliu.me/) and [Cory Zue](https://www.coryzu
 **To install**:
 
 ``` shell
-pip install --extra-index-url https://test.pypi.org/simple/ markpub_bskypost
+pip install markpub_bskypost
 ```  
 
 Note: this package will be transferred from this test index to `pypi.org` .  
