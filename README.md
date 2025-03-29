@@ -1,4 +1,6 @@
 
+![PyPI version](https://img.shields.io/pypi/v/markpub_bskypost)  
+
 Bluesky Comment support for MarkPub and MassiveWiki websites
 =========================
 
