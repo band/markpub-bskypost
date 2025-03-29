@@ -68,7 +68,7 @@ Running `markpub_bskypost` yields
 Enter the Markdown file name: 
 ```   
 One can enter a full-path, or a relative path, to a Markdown file in the repository, or an Obsidian URL (copied from the Obsidian file browser;  
-for example: `obsidian://open?vault=technosocial-praxis&file=notas%2F20250325-testnote)  
+for example: `obsidian://open?vault=technosocial-praxis&file=notas%2F20250325-testnote`)  
 
 `markpub_bksypost` generates the webpage URL to embed in the post
 and then prompts for the content of the Bluesky post (showing how many
