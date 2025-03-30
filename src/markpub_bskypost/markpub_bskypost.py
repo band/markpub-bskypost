@@ -19,6 +19,7 @@ from pathlib import Path
 import re
 import requests
 import sys
+import subprocess
 from typing import Dict, List
 from urllib.parse import unquote
 import yaml
@@ -241,6 +242,15 @@ def update_github_file_api(repo_name, file_path, new_content, commit_message, to
         print(f"❌ Error: {str(e)}")
         return False
 
+def git_pull():
+    try:
+        result = subprocess.run(["git", "pull"], capture_output=True, text=True, check=True)
+        print(result.stdout)
+        return 0
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e.stderr}")
+        return 1
+
 def main():
     # get environment settings
     load_dotenv()
@@ -309,6 +319,13 @@ def main():
     
     if not success:
         return 1
+
+    # update local clone with remote repo
+    if not config.get('repo_name').split('/')[-1] in os.getcwd():
+        print("Do not forget to `git pull` in the local repository directory.")
+        return 1
+
+    git_pull()
 
 if __name__ == "__main__":
     exit(main())
