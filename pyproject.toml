@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "markpub_bskypost"
-version = "0.9.6"
+version = "0.9.7"
 description = "Bluesky comments support for MarkPub websites"
 authors = [
     {name = "William L. Anderson", email = "band@acm.org"}

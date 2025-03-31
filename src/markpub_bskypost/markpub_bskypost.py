@@ -30,17 +30,6 @@ only CLI input required is
 - Bluesky and GitHub credentials if not defined in the Environment
 - deploy_site and repo_name if no "bskypost.yaml" file found
 """
-# load config file
-def load_config(path):
-    try:
-        with open(path) as infile:
-            return yaml.safe_load(infile)
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}", file=sys.stderr)
-        return None
 
 # create web-safe filepaths
 def scrub_path(filepath):
@@ -265,6 +254,8 @@ def main():
     parser.add_argument("--token", metavar="GITHUB_TOKEN", default=os.getenv("GH_TOKEN"))
     parser.add_argument("--sitehost", default='')
     parser.add_argument("--reponame", default='')
+    parser.add_argument('--config', '-c', default='./bskypost.yaml', help='path to YAML config file')
+    
     args = parser.parse_args()
     logger.debug(f"args: {args}")
 
@@ -276,14 +267,38 @@ def main():
         logger.critical("GitHub access token is required")
         return -1
 
-    # read 'bskypost.yaml' config file
-    if not (config := load_config(Path('./bskypost.yaml').resolve().as_posix())):
+    config = {
+        'deploy_site': None,
+        'repo_name': None
+    }
+    config_file = args.config if args.config else './bskypost.yaml'
+    logger.debug(f"config file: {config_file}")
+    if not Path(config_file).exists():
+        # config file does not exist, look for command line arguments
         if not (args.sitehost and args.reponame):
-            logger.critical("both sitehost and reponame are required")
+            logger.critical("Error: Both sitehost and reponame must be provided either in bskypost.yaml or as command-line arguments")
+            parser.print_help()
             return -1
-    if not (config.get('deploy_site') and config.get('repo_name')):
-        logger.critical("both sitehost and reponame are required")
-        return -1
+    try:
+        with open(Path(config_file), 'r') as file:
+            yaml_config = yaml.safe_load(file) or {}
+        if yaml_config and isinstance(config, dict):
+            config['deploy_site'] = yaml_config.get('deploy_site')
+            config['repo_name'] = yaml_config.get('repo_name')
+    except Exception as e:
+       logger.error(f"Error reading YAML file: {e}")
+
+    # command line args overwrite config file values
+    updates = {key: value for key, value in {'deploy_site': args.sitehost, 'repo_name': args.reponame}.items() if value}
+    config.update(updates)
+
+    if (missing := [param for param, value in [("sitehost", config.get('deploy_site')), ("reponame", config.get('repo_name'))] if value is None]):
+        print(f"Error: Both sitehost and reponame must be provided either in config file or as command-line arguments")
+        print(f"Missing: {', '.join(missing)}")
+        parser.print_help()
+        return False
+
+    logger.debug(f"final configuration: sitehost={config['deploy_site']}, reponame={config['repo_name']}")
     
     # get filename and embed_url path
     markdown_filename = get_filename()
