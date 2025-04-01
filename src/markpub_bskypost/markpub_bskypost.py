@@ -252,8 +252,8 @@ def main():
     parser.add_argument("--password", metavar="BLUESKY_PASSWORD", default=os.getenv("ATP_AUTH_PASSWORD"))
     # GitHub API arguments
     parser.add_argument("--token", metavar="GITHUB_TOKEN", default=os.getenv("GH_TOKEN"))
-    parser.add_argument("--sitehost", default='')
-    parser.add_argument("--reponame", default='')
+    parser.add_argument("--deploysite", default='', help="domain name where website is published")
+    parser.add_argument("--reponame", default='', help="repository owner/repository-name")
     parser.add_argument('--config', '-c', default='./bskypost.yaml', help='path to YAML config file')
     
     args = parser.parse_args()
@@ -275,8 +275,8 @@ def main():
     logger.debug(f"config file: {config_file}")
     if not Path(config_file).exists():
         # config file does not exist, look for command line arguments
-        if not (args.sitehost and args.reponame):
-            logger.critical("Error: Both sitehost and reponame must be provided either in bskypost.yaml or as command-line arguments")
+        if not (args.deploysite and args.reponame):
+            logger.critical("Error: Both deploysite and reponame must be provided either in bskypost.yaml or as command-line arguments")
             parser.print_help()
             return -1
     try:
@@ -289,16 +289,16 @@ def main():
        logger.error(f"Error reading YAML file: {e}")
 
     # command line args overwrite config file values
-    updates = {key: value for key, value in {'deploy_site': args.sitehost, 'repo_name': args.reponame}.items() if value}
+    updates = {key: value for key, value in {'deploy_site': args.deploysite, 'repo_name': args.reponame}.items() if value}
     config.update(updates)
 
-    if (missing := [param for param, value in [("sitehost", config.get('deploy_site')), ("reponame", config.get('repo_name'))] if value is None]):
-        print(f"Error: Both sitehost and reponame must be provided either in config file or as command-line arguments")
+    if (missing := [param for param, value in [("deploysite", config.get('deploy_site')), ("reponame", config.get('repo_name'))] if value is None]):
+        print(f"Error: Both deploysite and reponame must be provided either in config file or as command-line arguments")
         print(f"Missing: {', '.join(missing)}")
         parser.print_help()
-        return False
+        return -1
 
-    logger.debug(f"final configuration: sitehost={config['deploy_site']}, reponame={config['repo_name']}")
+    logger.debug(f"final configuration: deploysite={config['deploy_site']}, reponame={config['repo_name']}")
     
     # get filename and embed_url path
     markdown_filename = get_filename()
@@ -315,7 +315,7 @@ def main():
         post_text = get_valid_post(299-len(embed_url))
     else:
         print("MarkPub page URL processing failed. Exiting.")
-        return 1
+        return -1
 
     setattr(args, 'embed_url', embed_url)
     setattr(args, 'text', post_text)
@@ -324,23 +324,20 @@ def main():
     bsky_post_url = bluesky_post.create_post(args)
     logger.debug(f"bluesky_post return: {bsky_post_url}")
     
-    success = update_github_file_api(
-        repo_name=config['repo_name'],
-        file_path=relative_filename,
-        new_content=bsky_post_url,
-        commit_message="add bluesky post URL frontmatter",
-        token=args.token
-    )
-    
-    if not success:
-        return 1
+    if not update_github_file_api(
+            repo_name=config['repo_name'],
+            file_path=relative_filename,
+            new_content=bsky_post_url,
+            commit_message="add bluesky post URL frontmatter",
+            token=args.token):
+        return -1
 
-    # update local clone with remote repo
-    if not config.get('repo_name').split('/')[-1] in os.getcwd():
+    # synchronize local clone with remote repo
+    if config.get('repo_name').split('/')[-1] in os.getcwd():
+        git_pull()
+    else:
         print("Do not forget to `git pull` in the local repository directory.")
-        return 1
 
-    git_pull()
 
 if __name__ == "__main__":
     exit(main())
