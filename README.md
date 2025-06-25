@@ -48,14 +48,14 @@ GH_TOKEN=your_GitHub_token_here
 
 If ATP_PDS_HOST is not specified “https://bsky.social” is the default.  
 
-**N.B.**: Never commit your `.env` file to version control. Add it to your `.gitignore` file.
+**N.B.**: Never commit your `.env` file to version control. Add the filename `.env` to your `.gitignore` file.
 
 Website host and Git repository:  
 
-The host on which the website is deployed, and the repository holding the Markdown files can be specified on the command line, or in a file in the working directory named `bskypost.yaml` . Here is an example file:  
+The domain_name of the Markpub website, and the owner/repository_name holding the Markdown files, can be specified on the command line, or in a file in the working directory named `bskypost.yaml` . Here is an example file:  
 
 ```yaml
-deploy_site: socialpraxis.netlify.app
+markpub_website: socialpraxis.netlify.app
 repo_name: band/technosocial-praxis
 ```  
 

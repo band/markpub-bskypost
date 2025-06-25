@@ -28,7 +28,7 @@ import markpub_bskypost.bluesky_post as bluesky_post
 """
 only CLI input required is
 - Bluesky and GitHub credentials if not defined in the Environment
-- deploy_site and repo_name if no "bskypost.yaml" file found
+- markpub_website and repo_name if no "bskypost.yaml" file found
 """
 
 # create web-safe filepaths
@@ -252,7 +252,7 @@ def main():
     parser.add_argument("--password", metavar="BLUESKY_PASSWORD", default=os.getenv("ATP_AUTH_PASSWORD"))
     # GitHub API arguments
     parser.add_argument("--token", metavar="GITHUB_TOKEN", default=os.getenv("GH_TOKEN"))
-    parser.add_argument("--deploysite", default='', help="domain name where website is published")
+    parser.add_argument("--markpubsite", default='', help="domain name where Markpub website is published")
     parser.add_argument("--reponame", default='', help="repository owner/repository-name")
     parser.add_argument('--config', '-c', default='./bskypost.yaml', help='path to YAML config file')
     
@@ -268,37 +268,37 @@ def main():
         return -1
 
     config = {
-        'deploy_site': None,
+        'markpub_website': None,
         'repo_name': None
     }
     config_file = args.config if args.config else './bskypost.yaml'
     logger.debug(f"config file: {config_file}")
     if not Path(config_file).exists():
         # config file does not exist, look for command line arguments
-        if not (args.deploysite and args.reponame):
-            logger.critical("Error: Both deploysite and reponame must be provided either in bskypost.yaml or as command-line arguments")
+        if not (args.markpubsite and args.reponame):
+            logger.critical("Error: Both markpubsite and reponame must be provided either in bskypost.yaml or as command-line arguments")
             parser.print_help()
             return -1
     try:
         with open(Path(config_file), 'r') as file:
             yaml_config = yaml.safe_load(file) or {}
         if yaml_config and isinstance(config, dict):
-            config['deploy_site'] = yaml_config.get('deploy_site')
+            config['markpub_website'] = yaml_config.get('markpub_website')
             config['repo_name'] = yaml_config.get('repo_name')
     except Exception as e:
        logger.error(f"Error reading YAML file: {e}")
 
     # command line args overwrite config file values
-    updates = {key: value for key, value in {'deploy_site': args.deploysite, 'repo_name': args.reponame}.items() if value}
+    updates = {key: value for key, value in {'markpub_website': args.markpubsite, 'repo_name': args.reponame}.items() if value}
     config.update(updates)
 
-    if (missing := [param for param, value in [("deploysite", config.get('deploy_site')), ("reponame", config.get('repo_name'))] if value is None]):
-        print(f"Error: Both deploysite and reponame must be provided either in config file or as command-line arguments")
+    if (missing := [param for param, value in [("markpubsite", config.get('markpub_website')), ("reponame", config.get('repo_name'))] if value is None]):
+        print(f"Error: Both markpubsite and reponame must be provided either in config file or as command-line arguments")
         print(f"Missing: {', '.join(missing)}")
         parser.print_help()
         return -1
 
-    logger.debug(f"final configuration: deploysite={config['deploy_site']}, reponame={config['repo_name']}")
+    logger.debug(f"final configuration: markpubsite={config['markpub_website']}, reponame={config['repo_name']}")
     
     # get filename and embed_url path
     markdown_filename = get_filename()
@@ -307,10 +307,10 @@ def main():
     logger.debug(f"relative_filename: {relative_filename}")
     if relative_filename:
         embed_url_path = format_embed_url(relative_filename)
-        if 'github.io' in config['deploy_site']:
-            embed_url = f"https://{config['deploy_site']}/{config['repo_name'].split("/")[-1]}/{embed_url_path}"
+        if 'github.io' in config['markpub_website']:
+            embed_url = f"https://{config['markpub_website']}/{config['repo_name'].split("/")[-1]}/{embed_url_path}"
         else:
-            embed_url = f"https://{config['deploy_site']}/{embed_url_path}"
+            embed_url = f"https://{config['markpub_website']}/{embed_url_path}"
         # use the character count of the embed_url to display limit on text input
         post_text = get_valid_post(299-len(embed_url))
     else:
