@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "markpub_bskypost"
-version = "1.0.0"
+version = "1.0.1"
 description = "Bluesky comments support for MarkPub websites"
 authors = [
     {name = "William L. Anderson", email = "band@acm.org"}
@@ -27,7 +27,6 @@ markpub_bskypost = "markpub_bskypost.markpub_bskypost:main"
 
 [tool.uv]
 dev-dependencies = [
-    "pytest>=7.0",
-     "black>=23.0",
-     "ruff>=0.1.0",
+    "black>=23.0",
+    "ruff>=0.1.0",
 ]
