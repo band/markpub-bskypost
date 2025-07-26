@@ -12,6 +12,7 @@ logger = logging.getLogger('markpub_bluesky_posting')
 
 import argparse
 import base64
+from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 import json
@@ -41,65 +42,38 @@ def format_embed_url(filepath):
     logger.debug(f"the relative url: {relative_url}")
     return relative_url
 
-def get_relative_filename(filename_input, repo_name):
+def get_repo_filename(webpage_url, repo_name):
     """
-    Convert an absolute filename, Obsidian URL, or filename to a repository-relative filename
+    Extract the repository filepath from the webpage
     Args:
-        filename_input (str): The input filename: an absolute path, an Obsidian vault URL, or a filename fragment
+        webpage_url (str): The URL of the webpage to be embedded in a Bluesky post
         repo_name (str): The name of the repository to base the relative path on
     Returns:
-        str or None: The relative filename path if successful, None if an error occurs
+        str or None: filesystem path of the source Markdown file, None if an error occurs
     Raises:
-        FileNotFoundError: If the specified file cannot be found
+        RequestsException: If the specified URL request fails
     """
-    logger.debug(f"filename_input: {filename_input}")
-    logger.debug(f"repo_name: {repo_name}")    
-    if filename_input.startswith(Path.home().as_posix()):
-        try:
-            if not Path(filename_input).exists():
-                raise FileNotFoundError(f"The file \'{filename_input}\' does not exist")
-            parts = Path(filename_input).parts
-            repo_path = Path(*parts[parts.index('/'):parts.index(repo_name)+1])
-            logger.debug(f"repo_path: {repo_path}")
-            relative_filename = Path(filename_input).relative_to(repo_path).as_posix()
-            logger.debug(f"relative_filename: {relative_filename}")
-            return relative_filename
-        except FileNotFoundError as e:
-            print(f"Error: {e}", file=sys.stderr)
-            return None
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}", file=sys.stderr)
-            return None
-
+    logger.debug(f"webpage_url: {webpage_url}")
+    logger.debug(f"repo_name: {repo_name}")
     try:
-        if filename_input.startswith('obsidian://'):
-            vault_match = re.search(r'vault=([^&]+)', filename_input)
-            vault = vault_match.group(1) if vault_match else ""
-            file_match = re.search(r'file=([^&]+)', filename_input)
-            filename = unquote(file_match.group(1)) if file_match else ""
-            logger.debug(f"Vault: {vault}")
-            logger.debug(f"File: {filename}")
-            file_path = list(Path.home().rglob(f"*/{vault}/{filename}.md"))
-            if not file_path:
-                raise FileNotFoundError(f"No file named '{vault}/{filename}.md' found.")
-            relative_filename = f"{filename}.md"
-            logger.debug(f"relative_filename: {relative_filename}")
-            return relative_filename
-
-        repo_path = list(Path.home().rglob(f"*/{repo_name}"))[0]
-        logger.debug(f"repo_path: {repo_path}")
-        file_path = list(repo_path.rglob(filename_input))
-        logger.debug(f"file_path: {file_path}")
-        if not file_path:
-            raise FileNotFoundError(f"No file named \'{filename_input}\' found.")
-        relative_filename = file_path[0].relative_to(repo_path).as_posix()
-        return relative_filename
-
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
+        headers= {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'html.parser')
+        # extract the fs_path from the <meta> tag
+        meta_element = soup.find('meta', {'name': 'fs_path'})
+        if meta_element and meta_element.get('content'):
+        #    return meta_element.get('content')
+            fs_path = meta_element.get('content')
+        logger.debug(f"fs_path: {fs_path}")
+        if not fs_path:
+            return None
+        return fs_path
+    except requests.RequestException as e:
+        logger.error(f"Error fetching webpage: {e}")
         return None
     except Exception as e:
-        print(f"An unexpected error occurred: {e}", file=sys.stderr)
+        logger.error(f"Error parsing webpage: {e}")
         return None
 
 def trim_with_ellipsis(text, limit):
@@ -145,12 +119,12 @@ def get_valid_post(char_limit):
             print("\nCTRL-C detected; exiting.")
             exit()
 
-def get_filename():
+def get_markpub_url():
     try:
-        filename = input("Enter the Markdown file name: ").strip()
-        if (filename.startswith('"') and filename.endswith('"')) or (filename.startswith("'") and filename.endswith("'")):
-            filename = filename[1:-1]
-        return filename
+        markpub_url = input("Enter the Markpub webpage URL: ").strip()
+        if (markpub_url.startswith('"') and markpub_url.endswith('"')) or (markpub_url.startswith("'") and markpub_url.endswith("'")):
+            markpub_url = markpub_url[1:-1]
+        return markpub_url
     except KeyboardInterrupt:
         print("\nCTRL-C detected; exiting.")
         exit()
@@ -301,23 +275,17 @@ def main():
     logger.debug(f"final configuration: markpubsite={config['markpub_website']}, reponame={config['repo_name']}")
     
     # get filename and embed_url path
-    markdown_filename = get_filename()
-    logger.debug(f"markdown_filename: {markdown_filename}")
-    relative_filename = get_relative_filename(markdown_filename, config['repo_name'].split("/")[-1])
-    logger.debug(f"relative_filename: {relative_filename}")
-    if relative_filename:
-        embed_url_path = format_embed_url(relative_filename)
-        if 'github.io' in config['markpub_website']:
-            embed_url = f"https://{config['markpub_website']}/{config['repo_name'].split("/")[-1]}/{embed_url_path}"
-        else:
-            embed_url = f"https://{config['markpub_website']}/{embed_url_path}"
-        # use the character count of the embed_url to display limit on text input
-        post_text = get_valid_post(299-len(embed_url))
+    webpage_url = get_markpub_url()
+    logger.debug(f"webpage url: {webpage_url}")
+    repo_filename = get_repo_filename(webpage_url, config['repo_name'].split("/")[-1])
+    logger.debug(f"repo_filename: {repo_filename}")
+    if repo_filename:
+        post_text = get_valid_post(299-len(webpage_url))
     else:
-        print("MarkPub page URL processing failed. Exiting.")
+        print("MarkPub webpage URL processing failed. Exiting.")
         return -1
 
-    setattr(args, 'embed_url', embed_url)
+    setattr(args, 'embed_url', webpage_url)
     setattr(args, 'text', post_text)
     logger.debug(f"updated args: {args}")
 
